@@ -4,6 +4,8 @@
 #include <format>
 #include <iostream>
 #include <numeric>
+#include <ranges>
+#include <vector>
 
 // https://www.geeksforgeeks.org/cpp/cpp-exercises/
 
@@ -346,6 +348,411 @@ namespace
 			std::cout << std::format("Maximum = {}\nMinimum = {}", max, min) << std::endl;
 		}
 	}
+
+	void Q19_SearchArray(int element, bool simplifySolution)
+	{
+		std::array arr = { 10, 11, 7, 8, 2, 9 };
+
+		if (simplifySolution)
+		{
+			auto found = std::ranges::find(arr, element);
+			if (found == arr.end())
+			{
+				std::cout << std::format("{} not found in the arr[]", element) << std::endl;
+			}
+			else
+			{
+				std::cout << std::format("{} found in the arr[] at index {}", element, std::distance(arr.begin(), found)) << std::endl;
+			}
+		}
+		else
+		{
+			for (int idx = 0; idx < arr.size(); idx++)
+			{
+				if (arr[idx] == element)
+				{
+					std::cout << std::format("{} found in the arr[] at index {}", element, idx) << std::endl;
+					return;
+				}
+			}
+
+			std::cout << std::format("{} not found in the arr[]", element) << std::endl;
+		}
+	}
+
+	void Q20_RotateArray(int k, bool simplifySolution)
+	{
+		std::array arr = { 10, 11, 7, 33, 5, 1 };
+
+		if (simplifySolution)
+		{
+			std::rotate(arr.begin(), arr.begin() + k % arr.size(), arr.end());
+		}
+		else
+		{
+			for (int rot = 0; rot < k; rot++)
+			{
+				int last = arr.back();
+				for (size_t i = arr.size() - 1; i > 0; i--)
+				{
+					arr[i] = arr[i - 1];
+				}
+				arr[0] = last;
+			}
+		}
+
+		std::string output = std::format("{{{}", arr[0]);
+		for (int idx = 1; idx < arr.size(); idx++)
+		{
+			output += std::format(", {}", arr[idx]);
+		}
+		output += "}";
+
+		std::cout << std::format("Array after rotation: {}", output) << std::endl;
+	}
+
+	void Q21_MatrixSumOfDiagonals()
+	{
+		std::array<std::array<int, 3>, 3> matrix = { {
+			{ 1, 2, 3 },
+			{ 4, 5, 6 },
+			{ 7, 8, 9 }
+		} };
+
+		int principal = 0;
+		for (int i = 0; i < matrix.size(); i++)
+		{
+			principal += matrix[i][i];
+		}
+		std::cout << std::format("Principal Diagonal = {}", principal) << std::endl;
+
+		int secondary = 0;
+		for (int i = 0; i < matrix.size(); i++)
+		{
+			secondary += matrix[matrix.size() - i - 1][i];
+		}
+		std::cout << std::format("Secondary Diagonal = {}", secondary) << std::endl;
+	}
+
+	void Q22_RotateMatrix(int k)
+	{
+		std::array<std::array<int, 3>, 3> matrix = { {
+			{ 1, 2, 3 },
+			{ 4, 5, 6 },
+			{ 7, 8, 9 }
+		} };
+
+		auto nonrotated = matrix;
+		auto rotated = matrix;
+
+		for (size_t rot = 0; rot < k; rot++)
+		{
+			for (size_t row = 0; row < nonrotated.size(); row++)
+			{
+				size_t rowSize = nonrotated[row].size();
+				for (size_t col = 0; col < rowSize; col++)
+				{
+					rotated[col][rowSize - row - 1] = nonrotated[row][col];
+				}
+			}
+			nonrotated = rotated;
+		}
+
+		for (size_t row = 0; row < rotated.size(); row++)
+		{
+			size_t rowSize = rotated[row].size();
+			for (size_t col = 0; col < rowSize; col++)
+			{
+				std::cout << rotated[row][col] << " ";
+			}
+			std::cout << std::endl;
+		}
+	}
+
+	void Q23_StringLen(const std::string& input, bool simplifySolution)
+	{
+		size_t len = 0;
+		if (simplifySolution)
+		{
+			len = std::ranges::count_if(input, [](int) { return true; });
+		}
+		else
+		{
+			for (char c : input)
+			{
+				len++;
+			}
+		}
+		std::cout << std::format("Length of str = {}", len) << std::endl;
+	}
+
+	void Q24_StringCompare(const std::string& str1, const std::string& str2, bool simplifySolution)
+	{
+		auto stringCompare = [](const std::string& str1, const std::string& str2, bool simplifySolution) {
+			if (simplifySolution)
+			{
+				return std::ranges::equal(str1, str2, [](char c1, char c2) {return c1 == c2;});
+			}
+			else
+			{
+				if (str1.length() != str2.length())
+				{
+					return false;
+				}
+				for (auto c1 = str1.begin(), c2 = str2.begin(); c1 != str1.end(); ++c1, ++c2)
+				{
+					if (*c1 != *c2)
+					{
+						return false;
+					}
+				}
+				return true;
+			}
+		};
+
+		std::cout << std::format("str1 and str2 {} equal.", stringCompare(str1, str2, simplifySolution) ? "are" : "are not") << std::endl;
+	}
+
+	void Q25_StringPalindrome(const std::string& input)
+	{
+		auto isPalindrome = [](const std::string& input) {
+			if (input.empty())
+			{
+				return true;
+			}
+			for (auto begin = input.begin(), end = input.end() - 1; begin < end; ++begin, --end)
+			{
+				if (*begin != *end)
+				{
+					return false;
+				}
+			}
+			return true;
+		};
+		std::cout << std::format("str {} a palindrome string.", isPalindrome(input) ? "is" : "is not") << std::endl;
+	}
+
+	void Q26_AddBinaryStrings(const std::string& a, const std::string& b)
+	{
+		auto binToInt = [](char c)
+		{
+			switch (c)
+			{
+				case '0':
+				{
+					return 0;
+				}
+				break;
+				case '1':
+				{
+					return 1;
+				}
+				break;
+				default:
+				{
+					throw std::invalid_argument(std::format("Character is not '0' or '1': {}.", c));
+				}
+				break;
+			}
+		};
+
+		try
+		{
+			std::string sum;
+			size_t maxLen = std::max(a.length(), b.length()) + 1;
+			sum.reserve(maxLen);
+
+			int aIdx = static_cast<int>(a.length()) - 1;
+			int bIdx = static_cast<int>(b.length()) - 1;
+			int carry = 0;
+
+			while (aIdx >= 0 || bIdx >= 0 || carry != 0)
+			{
+				int aVal = aIdx >= 0 ? binToInt(a[aIdx]) : 0;
+				int bVal = bIdx >= 0 ? binToInt(b[bIdx]) : 0;
+
+				int total = aVal + bVal + carry;
+				switch (total)
+				{
+					case 0:
+					{
+						sum.insert(0, "0");
+						carry = 0;
+					}
+					break;
+					case 1:
+					{
+						sum.insert(0, "1");
+						carry = 0;
+					}
+					break;
+					case 2:
+					{
+						sum.insert(0, "0");
+						carry = 1;
+					}
+					break;
+					case 3:
+					{
+						sum.insert(0, "1");
+						carry = 1;
+					}
+					break;
+					default:
+					{
+						throw std::runtime_error("Binary overflow");
+					}
+				}
+
+				aIdx--;
+				bIdx--;
+			}
+
+			std::cout << sum << std::endl;
+		}
+		catch (const std::exception& e)
+		{
+			std::cerr << e.what() << std::endl;
+		}
+	}
+
+	void Q27_StringToInt(const std::string& input)
+	{
+		auto digitToInt = [](char c)
+		{
+			switch (c)
+			{
+			case '0': return 0;
+			case '1': return 1;
+			case '2': return 2;
+			case '3': return 3;
+			case '4': return 4;
+			case '5': return 5;
+			case '6': return 6;
+			case '7': return 7;
+			case '8': return 8;
+			case '9': return 9;
+			default:
+			{
+				throw std::invalid_argument(std::format("Character is not a digit: {}.", c));
+			}
+			break;
+			}
+		};
+
+		auto stringToInt = [&digitToInt](const std::string& input) {
+			if (input.length() == 0)
+			{
+				return 0;
+			}
+			int value = 0;
+			for (auto it = input.cbegin(); it != input.cend(); ++it)
+			{
+				value *= 10;
+				value += digitToInt(*it);
+
+			}
+			return value;
+		};
+
+		std::cout << std::format("Number = {}", stringToInt(input)) << std::endl;
+	}
+
+	void Q28_Substrings(const std::string& input, char delimiter)
+	{
+		std::vector<std::string> substrings;
+		std::string::size_type startIdx = 0;
+		for (std::string::size_type currentIdx = 0; currentIdx < input.size(); currentIdx++)
+		{
+			if (input[currentIdx] == delimiter)
+			{
+				substrings.emplace_back(input.substr(startIdx, currentIdx - startIdx));
+				startIdx = currentIdx + 1;
+			}
+		}
+		substrings.emplace_back(input.substr(startIdx));
+
+		std::cout << "Output:\n";
+		for (const std::string& substring : substrings)
+		{
+			std::cout << substring << "\n";
+		}
+	}
+
+	void Q29_PrintPyramid(int numRows)
+	{
+		for (int row = 1; row <= numRows; row++)
+		{
+			std::string line(numRows - row, ' ');
+			line += "*";
+			for (int star = 1; star < row; star++)
+			{
+				line += " *";
+			}
+			std::cout << line << "\n";
+		}
+	}
+
+	void Q31_PascalsTriangle(int numRows)
+	{
+		auto fac = [](int n)
+		{
+			int result = 1;
+			for (int f = 2; f <= n; f++)
+			{
+				result *= f;
+			}
+			return result;
+		};
+
+		for (int n = 0; n < numRows; n++)
+		{
+			for (int k = 0; k <= n; k++)
+			{
+				std::cout << fac(n) / (fac(k) * fac(n - k)) << " ";
+			}
+			std::cout << "\n";
+		}
+	}
+
+	void Q32_BinaryToDecimal(const std::string& input)
+	{
+		auto binToInt = [](char c)
+		{
+			switch (c)
+			{
+				case '0': return 0;
+				case '1': return 1;
+				default:
+				{
+					throw std::invalid_argument(std::format("Character is not '0' or '1': {}.", c));
+				}
+				break;
+			}
+		};
+
+		int result = 0;
+		for (char c : input)
+		{
+			result *= 2;
+			result += binToInt(c);
+		}
+
+		std::cout << result << std::endl;
+	}
+
+	void Q33_DecimalToOctal(int value)
+	{
+		std::string result;
+		while (value)
+		{
+			int oct = value % 8;
+			result.push_back('0' + oct);
+			value /= 8;
+		}
+		std::ranges::reverse(result);
+		std::cout << result;
+	}
 }
 
 int main(int argc, char* argv[])
@@ -373,4 +780,24 @@ int main(int argc, char* argv[])
 	Q17_Average(true);
 	Q18_MinAndMax(false);
 	Q18_MinAndMax(true);
+	Q19_SearchArray(8, false);
+	Q19_SearchArray(5, false);
+	Q19_SearchArray(8, true);
+	Q19_SearchArray(5, true);
+	Q20_RotateArray(3, false);
+	Q20_RotateArray(3, true);
+	Q21_MatrixSumOfDiagonals();
+	Q22_RotateMatrix(2);
+	Q23_StringLen("GeeksforGeeks", false);
+	Q23_StringLen("GeeksforGeeks", true);
+	Q24_StringCompare("Geeks", "geeks", false);
+	Q24_StringCompare("Geeks", "geeks", true);
+	Q25_StringPalindrome("naman");
+	Q26_AddBinaryStrings("11", "1");
+	Q27_StringToInt("69420");
+	Q28_Substrings("Welcome Geeks to the GeeksforGeeks portal.", ' ');
+	Q29_PrintPyramid(5);
+	Q31_PascalsTriangle(5);
+	Q32_BinaryToDecimal("101011");
+	Q33_DecimalToOctal(100);
 }
